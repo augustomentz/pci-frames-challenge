@@ -1,0 +1,11 @@
+{
+  "name": "pci-frames-challenge",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/augustomentz/pci-frames-challenge.git",
+  "author": "Augusto Mentz <augustohmn.tech@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "jquery": "^3.6.0"
+  }
+}
