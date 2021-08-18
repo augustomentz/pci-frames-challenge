@@ -126,54 +126,75 @@ const mirror = (src, canvasId, mx, my) => {
 const resize = (src, canvasId, size) => {
   return new Promise(async (resolve) => {
     // Largura x Altura do canvas (não altera as dimensões do canvas se o tamanho for menor do que 1, para conseguir processar toda a imagem)
-    let width = image.width;
-    let height = image.height;
+    let image = new Image();
 
-    if (size > 1) {
-      width = image.width * size;
-      height = image.height * size;
-    }
-
-    // Matriz para redimensionar
-    let matrix = [1 / size, 0, 0, 0, 1 / size, 0, 0, 0, 1];
-    // Transforma a imagem do canvas - Redimensionar
-
-    resolve(await transform(width, height, matrix));
+    image.onload = async function () {
+      let width = image.width;
+      let height = image.height;
+  
+      if (size > 1) {
+        width = image.width * size;
+        height = image.height * size;
+      }
+  
+      // Matriz para redimensionar
+      let matrix = [1 / size, 0, 0, 0, 1 / size, 0, 0, 0, 1];
+      // Transforma a imagem do canvas - Redimensionar
+  
+      resolve(await transform(canvasId, image, width, height, matrix));
+    };
+    
+    image.crossOrigin = "";
+    image.src = src;
   });
 };
 
-const translate = (tx, ty) => {
+const translate = (src, canvasId, tx, ty) => {
   return new Promise(async (resolve) => {
     // Largura x Altura do canvas
-    let width = image.width + tx;
-    let height = image.height + ty;
-    // Matriz para transladar
-    let matrix = [1, 0, 0, 0, 1, 0, 0, 0, 1];
-    if (tx > 0) {
-      matrix[6] = -tx;
-    }
-    if (ty > 0) {
-      matrix[7] = -ty;
-    }
-    // Transforma a imagem do canvas - Transladar
-    resolve(await transform(width, height, matrix));
+    let image = new Image();
+
+    image.onload = async function () {
+      let width = image.width + tx;
+      let height = image.height + ty;
+      // Matriz para transladar
+      let matrix = [1, 0, 0, 0, 1, 0, 0, 0, 1];
+      if (tx > 0) {
+        matrix[6] = -tx;
+      }
+      if (ty > 0) {
+        matrix[7] = -ty;
+      }
+      // Transforma a imagem do canvas - Transladar
+      resolve(await transform(canvasId, image, width, height, matrix));
+    };
+
+    image.crossOrigin = "";
+    image.src = src;
   });
 };
 
-const rotate = (ang) => {
+const rotate = (src, canvasId, ang) => {
   return new Promise(async (resolve) => {
     // Largura x Altura do canvas (aumenta as dimensões do canvas em 50% devido a rotação da imagem)
-    let width = image.width * 1.5;
-    let height = image.height * 1.5;
-    // Matriz para rotacionar ("xt" e "xy" servem para transladar e centralizar a imagem)
-    let cos = Math.cos((ang * Math.PI) / 180);
-    let sin = Math.sin((ang * Math.PI) / 180);
-    let xt = (-sin * width) / 2 - (cos * height) / 2 + image.height / 2;
-    let yt = (-cos * width) / 2 + (sin * height) / 2 + image.width / 2;
-    let matrix = [cos, -sin, 0, sin, cos, 0, xt, yt, 1];
+    let image = new Image();
 
-    // Transforma a imagem do canvas - rotacionar
-    resolve(await transform(width, height, matrix));
+    image.onload = async function () {
+      let width = image.width * 1.5;
+      let height = image.height * 1.5;
+      // Matriz para rotacionar ("xt" e "xy" servem para transladar e centralizar a imagem)
+      let cos = Math.cos((ang * Math.PI) / 180);
+      let sin = Math.sin((ang * Math.PI) / 180);
+      let xt = (-sin * width) / 2 - (cos * height) / 2 + image.height / 2;
+      let yt = (-cos * width) / 2 + (sin * height) / 2 + image.width / 2;
+      let matrix = [cos, -sin, 0, sin, cos, 0, xt, yt, 1];
+  
+      // Transforma a imagem do canvas - rotacionar
+      resolve(await transform(canvasId, image, width, height, matrix));
+    };
+
+    image.crossOrigin = "";
+    image.src = src;
   });
 };
 
@@ -202,11 +223,10 @@ const main = async () => {
         break;
       case "REDIMENSIONAR_2X":
         loadImageAlt(
-          await mirror(
+          await resize(
             question.name,
             `canvas-result-${question.name}`,
-            false,
-            true
+            2
           )
         );
         break;
@@ -215,38 +235,36 @@ const main = async () => {
           await mirror(
             question.name,
             `canvas-result-${question.name}`,
-            false,
-            true
+            true,
+            false
           )
         );
         break;
       case "TRANSLADAR_10_COLUNAS_DIREITA":
         loadImageAlt(
-          await mirror(
+          await translate(
             question.name,
             `canvas-result-${question.name}`,
-            false,
-            true
+            100,
+            0
           )
         );
         break;
       case "ROTACIONAR_90_GRAUS":
         loadImageAlt(
-          await mirror(
+          await rotate(
             question.name,
             `canvas-result-${question.name}`,
-            false,
-            true
+            90
           )
         );
         break;
       case "REDIMENSIONAR_METADE":
         loadImageAlt(
-          await mirror(
+          await resize(
             question.name,
             `canvas-result-${question.name}`,
-            false,
-            true
+            0.5
           )
         );
         break;
