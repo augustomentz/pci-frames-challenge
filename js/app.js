@@ -47,7 +47,7 @@ const loadImageAtCanvas = (imageName, idCanvas) => {
   image.src = imageName;
 };
 
-const transform = async (canvasId, image, width, height, matrix) => {
+const transform = (canvasId, image, width, height, matrix) => {
   return new Promise((resolve) => {
     //
     // Fonte: http://www.nibcode.com/en/blog/15/linear-algebra-and-digital-image-processing-part-IV-image-editor
@@ -93,7 +93,7 @@ const loadImageAlt = (data) => {
   ctx.putImageData(data.newImgData, 0, 0);
 };
 
-const mirror = async (src, canvasId, mx, my) => {
+const mirror = (src, canvasId, mx, my) => {
   return new Promise((resolve) => {
     let image = new Image();
 
@@ -123,8 +123,8 @@ const mirror = async (src, canvasId, mx, my) => {
   });
 };
 
-const resize = async (src, canvasId, size) => {
-  return new Promise((resolve) => {
+const resize = (src, canvasId, size) => {
+  return new Promise(async (resolve) => {
     // Largura x Altura do canvas (não altera as dimensões do canvas se o tamanho for menor do que 1, para conseguir processar toda a imagem)
     let width = image.width;
     let height = image.height;
@@ -142,8 +142,8 @@ const resize = async (src, canvasId, size) => {
   });
 };
 
-const translate = async (tx, ty) => {
-  return new Promise((resolve) => {
+const translate = (tx, ty) => {
+  return new Promise(async (resolve) => {
     // Largura x Altura do canvas
     let width = image.width + tx;
     let height = image.height + ty;
@@ -160,8 +160,8 @@ const translate = async (tx, ty) => {
   });
 };
 
-const rotate = async (ang) => {
-  return new Promise((resolve) => {
+const rotate = (ang) => {
+  return new Promise(async (resolve) => {
     // Largura x Altura do canvas (aumenta as dimensões do canvas em 50% devido a rotação da imagem)
     let width = image.width * 1.5;
     let height = image.height * 1.5;
