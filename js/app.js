@@ -49,21 +49,14 @@ const loadImageAtCanvas = (imageName, idCanvas) => {
 
 const transform = (canvasId, image, width, height, matrix) => {
   return new Promise((resolve) => {
-    //
-    // Fonte: http://www.nibcode.com/en/blog/15/linear-algebra-and-digital-image-processing-part-IV-image-editor
-    //
-    // Carrega as dimensões do canvas e desenha a imagem original nele
     let canvas = document.getElementById(canvasId);
     canvas.width = width;
     canvas.height = height;
     let ctx = canvas.getContext("2d");
     ctx.drawImage(image, 0, 0);
-    // Carrega os pixels da imagem original
     let pixelData = ctx.getImageData(0, 0, width, height).data;
-    // Cria os pixels da imagem transformada
     let newImgData = ctx.createImageData(width, height);
     let newPixelData = newImgData.data;
-    // Carrega os pixels da imagem transformada a partir dos pixels da imagem original
     for (let x = 0; x < width; x++) {
       for (let y = 0; y < height; y++) {
         let nx = Math.floor(matrix[0] * x + matrix[3] * y + matrix[6]);
@@ -98,10 +91,8 @@ const mirror = (src, canvasId, mx, my) => {
     let image = new Image();
 
     image.onload = async function () {
-      // Largura x Altura do canvas
       let width = image.width;
       let height = image.height;
-      // Matriz para espelhar
       let matrix = [1, 0, 0, 0, 1, 0, 0, 0, 1];
 
       if (mx) {
@@ -114,7 +105,6 @@ const mirror = (src, canvasId, mx, my) => {
         matrix[7] = height;
       }
 
-      // Transforma a imagem do canvas - Espelhar
       resolve(await transform(canvasId, image, width, height, matrix));
     };
 
@@ -125,25 +115,21 @@ const mirror = (src, canvasId, mx, my) => {
 
 const resize = (src, canvasId, size) => {
   return new Promise(async (resolve) => {
-    // Largura x Altura do canvas (não altera as dimensões do canvas se o tamanho for menor do que 1, para conseguir processar toda a imagem)
     let image = new Image();
 
     image.onload = async function () {
       let width = image.width;
       let height = image.height;
-  
+
       if (size > 1) {
         width = image.width * size;
         height = image.height * size;
       }
-  
-      // Matriz para redimensionar
+
       let matrix = [1 / size, 0, 0, 0, 1 / size, 0, 0, 0, 1];
-      // Transforma a imagem do canvas - Redimensionar
-  
       resolve(await transform(canvasId, image, width, height, matrix));
     };
-    
+
     image.crossOrigin = "";
     image.src = src;
   });
@@ -151,13 +137,11 @@ const resize = (src, canvasId, size) => {
 
 const translate = (src, canvasId, tx, ty) => {
   return new Promise(async (resolve) => {
-    // Largura x Altura do canvas
     let image = new Image();
 
     image.onload = async function () {
       let width = image.width + tx;
       let height = image.height + ty;
-      // Matriz para transladar
       let matrix = [1, 0, 0, 0, 1, 0, 0, 0, 1];
       if (tx > 0) {
         matrix[6] = -tx;
@@ -165,7 +149,6 @@ const translate = (src, canvasId, tx, ty) => {
       if (ty > 0) {
         matrix[7] = -ty;
       }
-      // Transforma a imagem do canvas - Transladar
       resolve(await transform(canvasId, image, width, height, matrix));
     };
 
@@ -176,20 +159,17 @@ const translate = (src, canvasId, tx, ty) => {
 
 const rotate = (src, canvasId, ang) => {
   return new Promise(async (resolve) => {
-    // Largura x Altura do canvas (aumenta as dimensões do canvas em 50% devido a rotação da imagem)
     let image = new Image();
 
     image.onload = async function () {
-      let width = image.width * 1.5;
-      let height = image.height * 1.5;
-      // Matriz para rotacionar ("xt" e "xy" servem para transladar e centralizar a imagem)
+      let width = image.width;
+      let height = image.height;
       let cos = Math.cos((ang * Math.PI) / 180);
       let sin = Math.sin((ang * Math.PI) / 180);
       let xt = (-sin * width) / 2 - (cos * height) / 2 + image.height / 2;
       let yt = (-cos * width) / 2 + (sin * height) / 2 + image.width / 2;
       let matrix = [cos, -sin, 0, sin, cos, 0, xt, yt, 1];
-  
-      // Transforma a imagem do canvas - rotacionar
+
       resolve(await transform(canvasId, image, width, height, matrix));
     };
 
@@ -223,11 +203,7 @@ const main = async () => {
         break;
       case "REDIMENSIONAR_2X":
         loadImageAlt(
-          await resize(
-            question.name,
-            `canvas-result-${question.name}`,
-            2
-          )
+          await resize(question.name, `canvas-result-${question.name}`, 2)
         );
         break;
       case "ESPELHAR_HORIZONTAL":
@@ -252,20 +228,12 @@ const main = async () => {
         break;
       case "ROTACIONAR_90_GRAUS":
         loadImageAlt(
-          await rotate(
-            question.name,
-            `canvas-result-${question.name}`,
-            90
-          )
+          await rotate(question.name, `canvas-result-${question.name}`, 90)
         );
         break;
       case "REDIMENSIONAR_METADE":
         loadImageAlt(
-          await resize(
-            question.name,
-            `canvas-result-${question.name}`,
-            0.5
-          )
+          await resize(question.name, `canvas-result-${question.name}`, 0.5)
         );
         break;
     }
