@@ -6,6 +6,7 @@
   "author": "Augusto Mentz <augustohmn.tech@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "image-to-base64": "^2.2.0",
     "jquery": "^3.6.0"
   }
 }
