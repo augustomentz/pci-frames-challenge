@@ -31,7 +31,7 @@ const questions = [
   },
 ];
 
-const loadImageAtCanvas = (imageName, idCanvas) => {
+const loadImageInCanvas = (imageName, idCanvas) => {
   const canvas = document.getElementById(idCanvas);
   const ctx = canvas.getContext("2d");
 
@@ -47,7 +47,16 @@ const loadImageAtCanvas = (imageName, idCanvas) => {
   image.src = imageName;
 };
 
-const transform = (canvasId, image, width, height, matrix) => {
+const loadAltImageInCanvas = (data) => {
+  let c = document.getElementById(data.canvasId);
+  c.width = data.newImgData.width;
+  c.height = data.newImgData.height;
+
+  let ctx = c.getContext("2d");
+  ctx.putImageData(data.newImgData, 0, 0);
+};
+
+const transformImage = (canvasId, image, width, height, matrix) => {
   return new Promise((resolve) => {
     let canvas = document.getElementById(canvasId);
     canvas.width = width;
@@ -77,16 +86,7 @@ const transform = (canvasId, image, width, height, matrix) => {
   });
 };
 
-const loadImageAlt = (data) => {
-  let c = document.getElementById(data.canvasId);
-  c.width = data.newImgData.width;
-  c.height = data.newImgData.height;
-
-  let ctx = c.getContext("2d");
-  ctx.putImageData(data.newImgData, 0, 0);
-};
-
-const mirror = (src, canvasId, mx, my) => {
+const mirrorImage = (src, canvasId, mx, my) => {
   return new Promise((resolve) => {
     let image = new Image();
 
@@ -105,7 +105,7 @@ const mirror = (src, canvasId, mx, my) => {
         matrix[7] = height;
       }
 
-      resolve(await transform(canvasId, image, width, height, matrix));
+      resolve(await transformImage(canvasId, image, width, height, matrix));
     };
 
     image.crossOrigin = "";
@@ -113,7 +113,7 @@ const mirror = (src, canvasId, mx, my) => {
   });
 };
 
-const resize = (src, canvasId, size) => {
+const resizeImage = (src, canvasId, size) => {
   return new Promise(async (resolve) => {
     let image = new Image();
 
@@ -127,7 +127,7 @@ const resize = (src, canvasId, size) => {
       }
 
       let matrix = [1 / size, 0, 0, 0, 1 / size, 0, 0, 0, 1];
-      resolve(await transform(canvasId, image, width, height, matrix));
+      resolve(await transformImage(canvasId, image, width, height, matrix));
     };
 
     image.crossOrigin = "";
@@ -135,7 +135,7 @@ const resize = (src, canvasId, size) => {
   });
 };
 
-const translate = (src, canvasId, tx, ty) => {
+const translateImage = (src, canvasId, tx, ty) => {
   return new Promise(async (resolve) => {
     let image = new Image();
 
@@ -149,7 +149,7 @@ const translate = (src, canvasId, tx, ty) => {
       if (ty > 0) {
         matrix[7] = -ty;
       }
-      resolve(await transform(canvasId, image, width, height, matrix));
+      resolve(await transformImage(canvasId, image, width, height, matrix));
     };
 
     image.crossOrigin = "";
@@ -157,7 +157,7 @@ const translate = (src, canvasId, tx, ty) => {
   });
 };
 
-const rotate = (src, canvasId, ang) => {
+const rotateImage = (src, canvasId, ang) => {
   return new Promise(async (resolve) => {
     let image = new Image();
 
@@ -170,7 +170,7 @@ const rotate = (src, canvasId, ang) => {
       let yt = (-cos * width) / 2 + (sin * height) / 2 + image.width / 2;
       let matrix = [cos, -sin, 0, sin, cos, 0, xt, yt, 1];
 
-      resolve(await transform(canvasId, image, width, height, matrix));
+      resolve(await transformImage(canvasId, image, width, height, matrix));
     };
 
     image.crossOrigin = "";
@@ -188,12 +188,12 @@ const main = async () => {
         </div>`
     );
 
-    loadImageAtCanvas(question.name, `canvas-${question.name}`);
+    loadImageInCanvas(question.name, `canvas-${question.name}`);
 
     switch (question.type) {
       case "ESPELHAR_VERTICAL":
-        loadImageAlt(
-          await mirror(
+        loadAltImageInCanvas(
+          await mirrorImage(
             question.name,
             `canvas-result-${question.name}`,
             false,
@@ -202,13 +202,13 @@ const main = async () => {
         );
         break;
       case "REDIMENSIONAR_2X":
-        loadImageAlt(
-          await resize(question.name, `canvas-result-${question.name}`, 2)
+        loadAltImageInCanvas(
+          await resizeImage(question.name, `canvas-result-${question.name}`, 2)
         );
         break;
       case "ESPELHAR_HORIZONTAL":
-        loadImageAlt(
-          await mirror(
+        loadAltImageInCanvas(
+          await mirrorImage(
             question.name,
             `canvas-result-${question.name}`,
             true,
@@ -217,8 +217,8 @@ const main = async () => {
         );
         break;
       case "TRANSLADAR_10_COLUNAS_DIREITA":
-        loadImageAlt(
-          await translate(
+        loadAltImageInCanvas(
+          await translateImage(
             question.name,
             `canvas-result-${question.name}`,
             100,
@@ -227,13 +227,13 @@ const main = async () => {
         );
         break;
       case "ROTACIONAR_90_GRAUS":
-        loadImageAlt(
-          await rotate(question.name, `canvas-result-${question.name}`, 90)
+        loadAltImageInCanvas(
+          await rotateImage(question.name, `canvas-result-${question.name}`, 90)
         );
         break;
       case "REDIMENSIONAR_METADE":
-        loadImageAlt(
-          await resize(question.name, `canvas-result-${question.name}`, 0.5)
+        loadAltImageInCanvas(
+          await resizeImage(question.name, `canvas-result-${question.name}`, 0.5)
         );
         break;
     }
